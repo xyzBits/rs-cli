@@ -14,18 +14,18 @@ struct Player {
     position: String,
 
     // rename 是用来重命名属性的，它是用来将属性的名称进行更改的
-    // 它是用来将属性的名称进行更改的，它是用来将属性的名称进行更改的   
+    // 它是用来将属性的名称进行更改的，它是用来将属性的名称进行更改的
     #[serde(rename = "DOB")]
     dob: String,
 
     nationality: String,
 
     // rename 是用来重命名属性的，它是用来将属性的名称进行更改的
-    // 它是用来将属性的名称进行更改的，它是用来将属性的名称进行更改的   
+    // 它是用来将属性的名称进行更改的，它是用来将属性的名称进行更改的
     #[serde(rename = "Kit Number")]
     kit: u8,
 }
-// 使用 csv 库来读取 csv 文件，使用 serde_json 库来将数据转换为 json 格式   
+// 使用 csv 库来读取 csv 文件，使用 serde_json 库来将数据转换为 json 格式
 pub fn process_csv(input: &str, output: &str) -> Result<()> {
     // Reader::from_path 是用来创建一个 Reader 对象的，它是用来读取 csv 文件的
     let mut reader = Reader::from_path(input)?;

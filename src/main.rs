@@ -7,7 +7,17 @@ fn main() -> anyhow::Result<()> {
 
     // 根据命令行参数的不同，执行不同的操作
     match opts.cmd {
-        SubCommand::Csv(opts) => process_csv(&opts.input, &opts.output)?,
+        SubCommand::Csv(opts) => {
+            let output = if let Some(output) = opts.output {
+                output.clone()
+            } else {
+                // opts.format 会调用 debug 的 fmt
+                format!("output.{}", opts.format)
+            };
+
+            process_csv(&opts.input, output, opts.format)?;
+        }
+        _ => {}
     }
 
     Ok(())

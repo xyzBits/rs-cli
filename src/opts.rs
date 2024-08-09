@@ -1,6 +1,10 @@
 use anyhow::Result;
 use clap::Parser;
-use std::path::Path;
+use std::{
+    fmt,
+    path::Path,
+    str::FromStr,
+};
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -20,6 +24,15 @@ pub enum SubCommand {
     // name 是子命令的名称，about 是子命令的简介
     #[command(name = "csv", about = "Show CSV, or convert CSV to other formats")]
     Csv(CsvOpts),
+
+    #[command(name = "genpass", about = "Generate a random password")]
+    GenPass(GenPassOpts),
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum OutputFormat {
+    Json,
+    Yaml,
 }
 
 /// 单个子命令的参数定义在一个 struct 中
@@ -35,7 +48,13 @@ pub struct CsvOpts {
     pub input: String,
 
     #[arg(short, long, default_value = "output.json")]
-    pub output: String,
+    pub output: Option<String>,
+
+    // value_parser 是值解析器，它是一个函数，用于解析参数的值，一般输入的参数是字符串引用
+    // 那么解析函数需要实现 字符串引用 和 enum 之间的转换，
+    // 所以需要为 enum 实现 FromStr trait
+    #[arg(short, long, value_parser = parse_format, default_value = "json")]
+    pub format: OutputFormat,
 
     #[arg(short, long, default_value_t = ',')]
     pub delimiter: char,
@@ -43,6 +62,24 @@ pub struct CsvOpts {
     // header 的作用是：是否有 header，如果有 header，那么第一行是 header，如果没有 header，那么第一行是数据
     #[arg(long, default_value_t = true)]
     pub header: bool,
+}
+
+#[derive(Debug, Parser)]
+pub struct GenPassOpts {
+    #[arg(short, long, default_value_t = 16)]
+    pub length: u8,
+
+    #[arg(long, default_value_t = true)]
+    pub uppercase: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub lowercase: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub numbers: bool,
+
+    #[arg(long, default_value_t = true)]
+    pub symbols: bool,
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误
@@ -56,5 +93,43 @@ fn verify_input_file(filename: &str) -> Result<String, &'static str> {
         Ok(filename.into())
     } else {
         Err("File does not exist")
+    }
+}
+
+fn parse_format(format: &str) -> Result<OutputFormat, anyhow::Error> {
+    // pub fn parse<F>(&self) -> Result<F, F::Err>
+    // 根据返回值类型推导需要 parse 的类型
+    // FromStr::from_str(self) 里面会调用这个方法，最终调用到 from_str 方法
+    format.parse()
+}
+
+/// 将 OutputFormat 转换为 字符串
+impl From<OutputFormat> for &'static str {
+    fn from(format: OutputFormat) -> Self {
+        match format {
+            OutputFormat::Json => "json",
+            OutputFormat::Yaml => "yaml",
+        }
+    }
+}
+
+/// 将字符串转换为 OutputFormat 类型
+/// 将 字符串切片 转换为 一个 enum 类型
+/// 它是一个函数，返回值是 Result<OutputFormat, Self::Err>
+impl FromStr for OutputFormat {
+    type Err = anyhow::Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "json" => Ok(OutputFormat::Json),
+            "yaml" => Ok(OutputFormat::Yaml),
+            _ => Err(anyhow::anyhow!("Invalid format: {}", s)),
+        }
+    }
+}
+
+impl fmt::Display for OutputFormat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", Into::<&str>::into(*self))
     }
 }

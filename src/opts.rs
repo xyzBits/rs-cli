@@ -1,10 +1,6 @@
 use anyhow::Result;
 use clap::Parser;
-use std::{
-    fmt,
-    path::Path,
-    str::FromStr,
-};
+use std::{fmt, path::Path, str::FromStr};
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -47,6 +43,7 @@ pub struct CsvOpts {
     #[arg(short, long, value_parser = verify_input_file)]
     pub input: String,
 
+    // 可选参数，如果没有传入，那么默认值是 None
     #[arg(short, long, default_value = "output.json")]
     pub output: Option<String>,
 
@@ -69,6 +66,7 @@ pub struct GenPassOpts {
     #[arg(short, long, default_value_t = 16)]
     pub length: u8,
 
+    // error: unexpected argument 'false' found
     #[arg(long, default_value_t = true)]
     pub uppercase: bool,
 
@@ -76,10 +74,10 @@ pub struct GenPassOpts {
     pub lowercase: bool,
 
     #[arg(long, default_value_t = true)]
-    pub numbers: bool,
+    pub number: bool,
 
     #[arg(long, default_value_t = true)]
-    pub symbols: bool,
+    pub symbol: bool,
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误

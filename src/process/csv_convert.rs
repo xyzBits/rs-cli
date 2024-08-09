@@ -34,6 +34,7 @@ pub fn process_csv(input: &str, output: String, format: OutputFormat) -> Result<
 
     let headers = reader.headers()?.clone();
 
+    // 统一的转为 json 格式，而不是和 struct 进行绑定
     for result in reader.records() {
         let record = result?;
         let json_value = headers

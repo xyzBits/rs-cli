@@ -11,3 +11,9 @@ cargo run -- csv --input input.csv
 ```bash 
  cargo run -- csv --input assets/juventus.csv --output output.yaml
 ```
+
+## Generate password 
+```bash
+ cargo run -- genpass --length 34
+
+```

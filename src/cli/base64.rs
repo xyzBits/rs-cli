@@ -30,7 +30,7 @@ pub enum Base64Format {
 }
 
 fn parse_base64_format(format: &str) -> Result<Base64Format, &'static str> {
-    todo!()
+    format.parse()
 }
 
 impl FromStr for Base64Format {

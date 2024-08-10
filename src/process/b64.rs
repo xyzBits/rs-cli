@@ -37,5 +37,3 @@ pub fn process_decode(input: &str, format: Base64Format) -> Result<()> {
 
     Ok(())
 }
-
-

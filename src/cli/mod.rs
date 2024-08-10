@@ -13,9 +13,7 @@ use crate::cli::csv::CsvOpts;
 use crate::cli::genpass::GenPassOpts;
 use anyhow::Result;
 use clap::Parser;
-use std::{
-    path::{Path, PathBuf}
-};
+use std::path::{Path, PathBuf};
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的

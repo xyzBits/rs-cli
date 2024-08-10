@@ -1,8 +1,12 @@
-use clap::Parser;
-use rcli::{get_content, get_reader, process_csv, process_decode, process_encode, process_genpass, process_text_key_generate, process_text_sign, process_text_verify, Base64SubCommand, Opts, SubCommand, TextSubCommand};
-use std::fs;
-use base64::Engine;
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
+use clap::Parser;
+use rcli::{
+    get_content, get_reader, process_csv, process_decode, process_encode, process_genpass,
+    process_text_key_generate, process_text_sign, process_text_verify, Base64SubCommand, Opts,
+    SubCommand, TextSubCommand,
+};
+use std::fs;
 
 fn main() -> anyhow::Result<()> {
     // 解析命令行参数
@@ -50,7 +54,7 @@ fn main() -> anyhow::Result<()> {
             }
 
             TextSubCommand::Sign(opts) => {
-                let mut reader  = get_reader(&opts.input)?;
+                let mut reader = get_reader(&opts.input)?;
                 // opts.key 也是一个文件路径
                 let key = get_content(&opts.key)?;
                 let sig = process_text_sign(&mut reader, &key, opts.format)?;
@@ -73,7 +77,7 @@ fn main() -> anyhow::Result<()> {
                     println!("⚠ Signature not verified");
                 }
             }
-        }
+        },
 
         _ => {}
     }

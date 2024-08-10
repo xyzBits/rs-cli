@@ -14,7 +14,6 @@ pub trait TextVerifier {
     fn verify(&self, reader: &mut dyn Read, sig: &[u8]) -> Result<bool>;
 }
 
-
 pub struct Blake3 {
     key: [u8; 32],
 }
@@ -26,7 +25,6 @@ pub struct Ed25519Signer {
 pub struct Ed25519Verifier {
     key: VerifyingKey,
 }
-
 
 impl TextSigner for Blake3 {
     fn sign(&self, reader: &mut dyn Read) -> Result<Vec<u8>> {
@@ -40,7 +38,6 @@ impl TextSigner for Blake3 {
         Ok(hash.as_bytes().to_vec())
     }
 }
-
 
 impl TextVerifier for Blake3 {
     fn verify(&self, reader: &mut dyn Read, sig: &[u8]) -> Result<bool> {
@@ -66,7 +63,6 @@ impl TextSigner for Ed25519Signer {
         Ok(signature.to_bytes().to_vec())
     }
 }
-
 
 impl TextVerifier for Ed25519Verifier {
     fn verify(&self, reader: &mut dyn Read, sig: &[u8]) -> Result<bool> {
@@ -95,7 +91,6 @@ impl Blake3 {
     }
 
     fn generate() -> Result<HashMap<&'static str, Vec<u8>>> {
-
         // 使用 genpass 生成 32 位长的密码，作为 key
         let key = process_genpass(32, true, true, true, true)?;
 
@@ -105,7 +100,6 @@ impl Blake3 {
         Ok(map)
     }
 }
-
 
 impl Ed25519Signer {
     pub fn try_new(key: impl AsRef<[u8]>) -> Result<Self> {
@@ -118,9 +112,7 @@ impl Ed25519Signer {
 
     pub fn new(key: &[u8; 32]) -> Self {
         let key = SigningKey::from_bytes(key);
-        Self {
-            key
-        }
+        Self { key }
     }
 
     fn generate() -> Result<HashMap<&'static str, Vec<u8>>> {
@@ -148,20 +140,18 @@ impl Ed25519Verifier {
         let key = (&key[..32]).try_into()?;
 
         let verifying_key = VerifyingKey::from_bytes(key)?;
-        Ok(Self {
-            key: verifying_key
-        })
+        Ok(Self { key: verifying_key })
     }
 }
 
 pub fn process_text_sign(
-    reader: &mut dyn Read,// 需要签名的数据
-    key: &[u8],// 签名使用的key
+    reader: &mut dyn Read, // 需要签名的数据
+    key: &[u8],            // 签名使用的key
     format: TextSignFormat,
 ) -> Result<Vec<u8>> {
     let signer: Box<dyn TextSigner> = match format {
         TextSignFormat::Blake3 => Box::new(Blake3::try_new(key)?),
-        TextSignFormat::Ed25519 => Box::new(Ed25519Signer::try_new(key)?)
+        TextSignFormat::Ed25519 => Box::new(Ed25519Signer::try_new(key)?),
     };
 
     signer.sign(reader)
@@ -175,34 +165,31 @@ pub fn process_text_verify(
 ) -> Result<bool> {
     let verifier: Box<dyn TextVerifier> = match format {
         TextSignFormat::Blake3 => Box::new(Blake3::try_new(key)?),
-        TextSignFormat::Ed25519 => Box::new(Ed25519Verifier::try_new(key)?)
+        TextSignFormat::Ed25519 => Box::new(Ed25519Verifier::try_new(key)?),
     };
 
     verifier.verify(reader, sig)
 }
 
-pub fn process_text_key_generate(format: TextSignFormat)
-                                 -> Result<HashMap<&'static str, Vec<u8>>> {
+pub fn process_text_key_generate(format: TextSignFormat) -> Result<HashMap<&'static str, Vec<u8>>> {
     match format {
         TextSignFormat::Blake3 => Blake3::generate(),
         TextSignFormat::Ed25519 => Ed25519Signer::generate(),
     }
 }
 
-
 #[cfg(test)]
 mod tests {
-    use std::env::current_dir;
-    use std::fs::File;
     use super::*;
+    use crate::{get_content, get_reader};
     use base64::engine::general_purpose::URL_SAFE_NO_PAD;
     use base64::Engine;
-    use crate::{get_content, get_reader};
+    use std::env::current_dir;
+    use std::fs::File;
 
     const KEY: &[u8] = include_bytes!("../../fixtures/blake3.txt");
     const SIGNING_KEY: &[u8] = include_bytes!("../../fixtures/ed25519.signing_key");
     const VERIFY_KEY: &[u8] = include_bytes!("../../fixtures/ed25519.verifying_key");
-
 
     #[test]
     fn test_process_text_sign() -> Result<()> {
@@ -232,16 +219,13 @@ mod tests {
         Ok(())
     }
 
-
     #[test]
     fn test_ed25519_sign_and_verify() -> Result<()> {
-
-        let mut reader  = get_reader("fixtures/ed25519.signing_key")?;
+        let mut reader = get_reader("fixtures/ed25519.signing_key")?;
         let mut reader: &[u8] = "hello".as_bytes();
 
         // opts.key 也是一个文件路径
         // let key = get_content("fixtures/ed25519.verify_key")?;
-
 
         let sig = process_text_sign(&mut reader, &SIGNING_KEY, TextSignFormat::Ed25519)?;
 
@@ -252,29 +236,22 @@ mod tests {
         // let result = URL_SAFE_NO_PAD.decode(sig_buf)?;
         // assert_eq!(sig, result);
 
-
         // base64 output
         let encode = URL_SAFE_NO_PAD.encode(sig);
         println!("{}", encode);
-
 
         let decode_sig = URL_SAFE_NO_PAD.decode(encode)?;
 
         let mut reader: &[u8] = "hello".as_bytes();
 
-        let ret = process_text_verify(&mut reader, VERIFY_KEY, &decode_sig, TextSignFormat::Ed25519)?;
+        let ret = process_text_verify(
+            &mut reader,
+            VERIFY_KEY,
+            &decode_sig,
+            TextSignFormat::Ed25519,
+        )?;
 
         println!("{}", ret);
         Ok(())
     }
 }
-
-
-
-
-
-
-
-
-
-

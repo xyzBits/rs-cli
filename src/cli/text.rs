@@ -6,14 +6,16 @@ use super::{verify_file, verify_path};
 
 #[derive(Debug, Parser)]
 pub enum TextSubCommand {
-
     #[command(about = "Sign a text with a private/session key and return a signature")]
     Sign(TextSignOpts),
 
     #[command(about = "Verify a signature with a public/session key")]
     Verify(TextVerifyOPts),
 
-    #[command(name = "generate", about = "Generate a random blake3 key or ed25519 key pair")]
+    #[command(
+        name = "generate",
+        about = "Generate a random blake3 key or ed25519 key pair"
+    )]
     KeyGenerate(KeyGenerateOpts),
 }
 

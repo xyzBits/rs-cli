@@ -1,4 +1,4 @@
-use super::verify_input_file;
+use super::verify_file;
 use clap::Parser;
 use std::fmt;
 use std::str::FromStr;
@@ -18,7 +18,7 @@ pub enum OutputFormat {
 /// 两者的区别是：default_value 是字符串，要使用 into from 进行转换，而 default_value_t 就是所要求的类型，不需要进行转换
 #[derive(Debug, Parser)]
 pub struct CsvOpts {
-    #[arg(short, long, value_parser = verify_input_file)]
+    #[arg(short, long, value_parser = verify_file)]
     pub input: String,
 
     // 可选参数，如果没有传入，那么默认值是 None

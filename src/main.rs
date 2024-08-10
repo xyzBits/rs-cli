@@ -1,8 +1,8 @@
 use clap::Parser;
-use rcli::{
-    process_csv, process_decode, process_encode, process_genpass, Base64SubCommand, Opts,
-    SubCommand,
-};
+use rcli::{get_content, get_reader, process_csv, process_decode, process_encode, process_genpass, process_text_key_generate, process_text_sign, process_text_verify, Base64SubCommand, Opts, SubCommand, TextSubCommand};
+use std::fs;
+use base64::Engine;
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 
 fn main() -> anyhow::Result<()> {
     // 解析命令行参数
@@ -40,6 +40,40 @@ fn main() -> anyhow::Result<()> {
                 process_decode(&opts.input, opts.format)?;
             }
         },
+
+        SubCommand::Text(subcmd) => match subcmd {
+            TextSubCommand::KeyGenerate(opts) => {
+                let key_map = process_text_key_generate(opts.format)?;
+                for (k, v) in key_map {
+                    fs::write(opts.output_path.join(k), v)?;
+                }
+            }
+
+            TextSubCommand::Sign(opts) => {
+                let mut reader  = get_reader(&opts.input)?;
+                // opts.key 也是一个文件路径
+                let key = get_content(&opts.key)?;
+                let sig = process_text_sign(&mut reader, &key, opts.format)?;
+
+                // base64 output
+                let encode = URL_SAFE_NO_PAD.encode(sig);
+                println!("{}", encode);
+            }
+
+            TextSubCommand::Verify(opts) => {
+                let mut reader = get_reader(&opts.input)?;
+                let key = get_content(&opts.key)?;
+
+                let decoded_sig = URL_SAFE_NO_PAD.decode(&opts.sig)?;
+                let verified = process_text_verify(&mut reader, &key, &decoded_sig, opts.format)?;
+
+                if verified {
+                    println!("✓ Signature verified");
+                } else {
+                    println!("⚠ Signature not verified");
+                }
+            }
+        }
 
         _ => {}
     }

@@ -14,7 +14,7 @@ pub fn process_genpass(
     lower: bool,
     number: bool,
     symbol: bool,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<String> {
     // 生成随机数, rng.gen_range(0..10) 生成 0 到 10 之间的随机数，每调用一次，都生成不一样的随机数
     let mut rng = rand::thread_rng();
 
@@ -60,7 +60,7 @@ pub fn process_genpass(
     let estimate = zxcvbn::zxcvbn(&password, &[])?;
     eprintln!("Password strength: {}", estimate.score());
 
-    Ok(())
+    Ok(password)
 }
 
 #[cfg(test)]

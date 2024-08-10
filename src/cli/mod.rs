@@ -1,16 +1,22 @@
 mod base64;
 mod csv;
 mod genpass;
+mod text;
 
+// 在这里也需要 pub use 一下
 pub use base64::*;
 pub use csv::*;
 pub use genpass::*;
+pub use text::*;
 
 use crate::cli::csv::CsvOpts;
 use crate::cli::genpass::GenPassOpts;
 use anyhow::Result;
 use clap::Parser;
-use std::{path::Path, str::FromStr};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -38,6 +44,9 @@ pub enum SubCommand {
     // 如果这里不加 name 属性，会自动将 enum 的名称小写作为 command 的名称
     #[command(subcommand, name = "base64", about = "Encode and decode base64")]
     Base64(Base64SubCommand),
+
+    #[command(subcommand, name = "text", about = "Sign or verify a text")]
+    Text(TextSubCommand),
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误
@@ -46,10 +55,31 @@ pub enum SubCommand {
 /// anyhow::Result 是 anyhow 库的类型，它是用来处理错误的，它是用来返回错误的，而不是抛出错误
 /// Err 是错误的类型，它是用来返回错误的，而不是抛出错误
 ///
-fn verify_input_file(filename: &str) -> Result<String, &'static str> {
-    if Path::new(filename).exists() {
+fn verify_file(filename: &str) -> Result<String, &'static str> {
+    if filename == "-" || Path::new(filename).exists() {
         Ok(filename.into())
     } else {
         Err("File does not exist")
+    }
+}
+
+fn verify_path(path: &str) -> Result<PathBuf, &'static str> {
+    if Path::new(path).exists() {
+        Ok(path.into())
+    } else {
+        Err("Path does not exist or is not a directory")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_verify_input_file() {
+        assert_eq!(verify_file("-"), Ok("-".into()));
+        assert_eq!(verify_file("*"), Err("File does not exist"));
+        assert_eq!(verify_file("Cargo.toml"), Ok("Cargo.toml".into()));
+        assert_eq!(verify_file("not-exist"), Err("File does not exist"));
     }
 }

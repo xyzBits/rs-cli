@@ -33,6 +33,10 @@ pub enum SubCommand {
 
     #[command(name = "genpass", about = "Generate a random password")]
     GenPass(GenPassOpts),
+
+    // base64 下面还有子命令，因此需要加 subcommand 属性，而不是像 csv 那样直接定义在 Opts 中
+    #[command(subcommand, about = "Encode and decode base64")]
+    Base64(Base64SubCommand),
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误

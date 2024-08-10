@@ -14,8 +14,7 @@ use crate::cli::genpass::GenPassOpts;
 use anyhow::Result;
 use clap::Parser;
 use std::{
-    path::{Path, PathBuf},
-    str::FromStr,
+    path::{Path, PathBuf}
 };
 
 /// 最上层的 command

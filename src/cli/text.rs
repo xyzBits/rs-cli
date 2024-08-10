@@ -31,9 +31,11 @@ pub struct TextSignOpts {
 
 #[derive(Debug, Parser)]
 pub struct TextVerifyOPts {
+    // 这个 input 是原始消息的输入
     #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
 
+    // verify key
     #[arg(short, long, value_parser = verify_file)]
     pub key: String,
 

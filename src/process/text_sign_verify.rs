@@ -74,7 +74,7 @@ impl TextVerifier for Ed25519Verifier {
         reader.read_to_end(&mut buf)?;
 
         let sig = (&sig[..64]).try_into()?;
-        let signature = Signature::from_bytes(&sig);
+        let signature = Signature::from_bytes(sig);
 
         // verify 方法是 Verifier trait 定义的方法，所以在使用时，需要将 trait import 进来
         Ok(self.key.verify(&buf, &signature).is_ok())
@@ -155,8 +155,8 @@ impl Ed25519Verifier {
 }
 
 pub fn process_text_sign(
-    reader: &mut dyn Read,
-    key: &[u8],
+    reader: &mut dyn Read,// 需要签名的数据
+    key: &[u8],// 签名使用的key
     format: TextSignFormat,
 ) -> Result<Vec<u8>> {
     let signer: Box<dyn TextSigner> = match format {
@@ -192,9 +192,16 @@ pub fn process_text_key_generate(format: TextSignFormat)
 
 #[cfg(test)]
 mod tests {
+    use std::env::current_dir;
+    use std::fs::File;
     use super::*;
+    use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+    use base64::Engine;
+    use crate::{get_content, get_reader};
 
-    const KEY: &[u8] = include_bytes!("../../fixtures/");
+    const KEY: &[u8] = include_bytes!("../../fixtures/blake3.txt");
+    const SIGNING_KEY: &[u8] = include_bytes!("../../fixtures/ed25519.signing_key");
+    const VERIFY_KEY: &[u8] = include_bytes!("../../fixtures/ed25519.verifying_key");
 
 
     #[test]
@@ -204,8 +211,60 @@ mod tests {
 
         let format = TextSignFormat::Blake3;
 
-        // process_text_sign(&mut reader, )
+        let sig = process_text_sign(&mut reader, KEY, format)?;
+        let ret = process_text_verify(&mut reader1, KEY, &sig, format)?;
+        assert!(ret);
+        Ok(())
+    }
 
+    #[test]
+    fn test_process_text_verify() -> Result<()> {
+        let mut reader = "hello".as_bytes();
+        let format = TextSignFormat::Blake3;
+
+        let sig = "7D1ujXdqgaMOVayfCqqvQAqgpRTUDZPTA_XzvrICtyM";
+        let sig = URL_SAFE_NO_PAD.decode(sig)?;
+        let ret = process_text_verify(&mut reader, KEY, &sig, format)?;
+
+        println!("{}", ret);
+        assert!(ret);
+
+        Ok(())
+    }
+
+
+    #[test]
+    fn test_ed25519_sign_and_verify() -> Result<()> {
+
+        let mut reader  = get_reader("fixtures/ed25519.signing_key")?;
+        let mut reader: &[u8] = "hello".as_bytes();
+
+        // opts.key 也是一个文件路径
+        // let key = get_content("fixtures/ed25519.verify_key")?;
+
+
+        let sig = process_text_sign(&mut reader, &SIGNING_KEY, TextSignFormat::Ed25519)?;
+
+        // let mut sig_buf = Vec::new();
+        // let mut file = File::open("../../fixtures/ed25519.sig")?;
+        // file.read_to_end(&mut sig_buf)?;
+        //
+        // let result = URL_SAFE_NO_PAD.decode(sig_buf)?;
+        // assert_eq!(sig, result);
+
+
+        // base64 output
+        let encode = URL_SAFE_NO_PAD.encode(sig);
+        println!("{}", encode);
+
+
+        let decode_sig = URL_SAFE_NO_PAD.decode(encode)?;
+
+        let mut reader: &[u8] = "hello".as_bytes();
+
+        let ret = process_text_verify(&mut reader, VERIFY_KEY, &decode_sig, TextSignFormat::Ed25519)?;
+
+        println!("{}", ret);
         Ok(())
     }
 }

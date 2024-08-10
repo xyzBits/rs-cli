@@ -35,7 +35,8 @@ pub enum SubCommand {
     GenPass(GenPassOpts),
 
     // base64 下面还有子命令，因此需要加 subcommand 属性，而不是像 csv 那样直接定义在 Opts 中
-    #[command(subcommand, about = "Encode and decode base64")]
+    // 如果这里不加 name 属性，会自动将 enum 的名称小写作为 command 的名称
+    #[command(subcommand, name = "base64", about = "Encode and decode base64")]
     Base64(Base64SubCommand),
 }
 

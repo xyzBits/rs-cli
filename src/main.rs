@@ -1,7 +1,11 @@
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
 use clap::Parser;
-use rcli::{get_content, get_reader, process_csv, process_decode, process_encode, process_genpass, process_http_serve, process_text_key_generate, process_text_sign, process_text_verify, Base64SubCommand, HttpSubCommand, Opts, SubCommand, TextSubCommand};
+use rcli::{
+    get_content, get_reader, process_csv, process_decode, process_encode, process_genpass,
+    process_http_serve, process_text_key_generate, process_text_sign, process_text_verify,
+    Base64SubCommand, HttpSubCommand, Opts, SubCommand, TextSubCommand,
+};
 use std::fs;
 
 #[tokio::main]
@@ -82,7 +86,7 @@ async fn main() -> anyhow::Result<()> {
             HttpSubCommand::Serve(opts) => {
                 process_http_serve(opts.dir, opts.port).await?;
             }
-        }
+        },
 
         _ => {}
     }

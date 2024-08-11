@@ -47,3 +47,8 @@ cargo run -- csv --input input.csv
 ```shell
  cargo run -- text verify --input fixtures/hello.txt --sig fixtures/ed25519.sig --key fixtures/ed25519.verifying_key --format ed25519
 ```
+
+## Start a http file server
+```shell    
+
+```

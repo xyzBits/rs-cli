@@ -1,12 +1,14 @@
 mod base64;
 mod csv;
 mod genpass;
+mod http;
 mod text;
 
 // 在这里也需要 pub use 一下
 pub use base64::*;
 pub use csv::*;
 pub use genpass::*;
+pub use http::*;
 pub use text::*;
 
 use crate::cli::csv::CsvOpts;
@@ -44,6 +46,9 @@ pub enum SubCommand {
 
     #[command(subcommand, name = "text", about = "Sign or verify a text")]
     Text(TextSubCommand),
+
+    #[command(subcommand, name = "http", about = "Start a http file server")]
+    Http(HttpSubCommand),
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误

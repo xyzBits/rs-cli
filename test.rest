@@ -1,3 +1,4 @@
 ### Test index page
 
-GET http://localhost:8080/fixtures/hello.txt
+GET http://localhost:8080/Cargo.toml
+Content-Range:bytes=100-300

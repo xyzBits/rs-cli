@@ -50,5 +50,5 @@ cargo run -- csv --input input.csv
 
 ## Start a http file server
 ```shell    
-
+RUST_LOG=debug cargo run -- http serve
 ```

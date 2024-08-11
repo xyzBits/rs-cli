@@ -221,7 +221,7 @@ mod tests {
 
     #[test]
     fn test_ed25519_sign_and_verify() -> Result<()> {
-        let mut reader = get_reader("fixtures/ed25519.signing_key")?;
+        // let mut reader = get_reader("fixtures/ed25519.signing_key")?;
         let mut reader: &[u8] = "hello".as_bytes();
 
         // opts.key 也是一个文件路径

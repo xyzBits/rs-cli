@@ -1,13 +1,14 @@
-use std::{fmt, path::PathBuf, str::FromStr};
-use base64::Engine;
-use base64::engine::general_purpose::URL_SAFE_NO_PAD;
-use clap::Parser;
-use enum_dispatch::enum_dispatch;
 use super::{verify_file, verify_path};
-use crate::{get_content, get_reader, process_text_key_generate, process_text_sign, process_text_verify, CmdExecutor, TextVerifier};
+use crate::{
+    get_content, get_reader, process_text_key_generate, process_text_sign, process_text_verify,
+    CmdExecutor,
+};
+use base64::engine::general_purpose::URL_SAFE_NO_PAD;
+use base64::Engine;
+use clap::Parser;
+use std::{fmt, path::PathBuf, str::FromStr};
 
 #[derive(Debug, Parser)]
-#[enum_dispatch(CmdExecutor)]
 pub enum TextSubCommand {
     #[command(about = "Sign a text with a private/session key and return a signature")]
     Sign(TextSignOpts),
@@ -97,7 +98,6 @@ impl fmt::Display for TextSignFormat {
     }
 }
 
-
 impl CmdExecutor for TextSignOpts {
     async fn execute(self) -> anyhow::Result<()> {
         let mut reader = get_reader(&self.input)?;
@@ -133,5 +133,15 @@ impl CmdExecutor for KeyGenerateOpts {
         }
 
         Ok(())
+    }
+}
+
+impl CmdExecutor for TextSubCommand {
+    async fn execute(self) -> anyhow::Result<()> {
+        match self {
+            TextSubCommand::Sign(opts) => opts.execute().await,
+            TextSubCommand::Verify(opts) => opts.execute().await,
+            TextSubCommand::KeyGenerate(opts) => opts.execute().await,
+        }
     }
 }

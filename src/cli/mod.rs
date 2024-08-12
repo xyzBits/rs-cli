@@ -13,11 +13,10 @@ pub use text::*;
 
 use crate::cli::csv::CsvOpts;
 use crate::cli::genpass::GenPassOpts;
+use crate::CmdExecutor;
 use anyhow::Result;
 use clap::Parser;
 use std::path::{Path, PathBuf};
-use enum_dispatch::enum_dispatch;
-use crate::CmdExecutor;
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -33,7 +32,6 @@ pub struct Opts {
 
 /// 多个子命令定义在一个 enum 中
 #[derive(Debug, Parser)]
-#[enum_dispatch(CmdExecutor)]
 pub enum SubCommand {
     // name 是子命令的名称，about 是子命令的简介
     #[command(name = "csv", about = "Show CSV, or convert CSV to other formats")]
@@ -52,6 +50,18 @@ pub enum SubCommand {
 
     #[command(subcommand, name = "http", about = "Start a http file server")]
     Http(HttpSubCommand),
+}
+
+impl CmdExecutor for SubCommand {
+    async fn execute(self) -> Result<()> {
+        match self {
+            SubCommand::Csv(opts) => opts.execute().await,
+            SubCommand::GenPass(opts) => opts.execute().await,
+            SubCommand::Base64(cmd) => cmd.execute().await,
+            SubCommand::Text(cmd) => cmd.execute().await,
+            SubCommand::Http(cmd) => cmd.execute().await,
+        }
+    }
 }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误

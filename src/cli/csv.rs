@@ -18,7 +18,6 @@ pub enum OutputFormat {
 /// default_value_t 是默认值的类型，它是一个类型，用于设置参数的默认值
 /// 两者的区别是：default_value 是字符串，要使用 into from 进行转换，而 default_value_t 就是所要求的类型，不需要进行转换
 #[derive(Debug, Parser)]
-#[enum_dispatch(CmdExecutor)]
 pub struct CsvOpts {
     #[arg(short, long, value_parser = verify_file)]
     pub input: String,
@@ -78,7 +77,6 @@ impl fmt::Display for OutputFormat {
         write!(f, "{}", Into::<&str>::into(*self))
     }
 }
-
 
 impl CmdExecutor for CsvOpts {
     async fn execute(self) -> anyhow::Result<()> {

@@ -1,10 +1,8 @@
 use crate::CmdExecutor;
 use clap::Parser;
-use enum_dispatch::enum_dispatch;
 use zxcvbn::zxcvbn;
 
 #[derive(Debug, Parser)]
-#[enum_dispatch(CmdExecutor)]
 pub struct GenPassOpts {
     #[arg(short, long, default_value_t = 16)]
     pub length: u8,
@@ -22,7 +20,6 @@ pub struct GenPassOpts {
     #[arg(long, default_value_t = true)]
     pub symbol: bool,
 }
-
 
 impl CmdExecutor for GenPassOpts {
     async fn execute(self) -> anyhow::Result<()> {

@@ -7,8 +7,10 @@ use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
 use clap::Parser;
 use std::{fmt, path::PathBuf, str::FromStr};
+use enum_dispatch::enum_dispatch;
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum TextSubCommand {
     #[command(about = "Sign a text with a private/session key and return a signature")]
     Sign(TextSignOpts),
@@ -136,12 +138,12 @@ impl CmdExecutor for KeyGenerateOpts {
     }
 }
 
-impl CmdExecutor for TextSubCommand {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self {
-            TextSubCommand::Sign(opts) => opts.execute().await,
-            TextSubCommand::Verify(opts) => opts.execute().await,
-            TextSubCommand::KeyGenerate(opts) => opts.execute().await,
-        }
-    }
-}
+// impl CmdExecutor for TextSubCommand {
+//     async fn execute(self) -> anyhow::Result<()> {
+//         match self {
+//             TextSubCommand::Sign(opts) => opts.execute().await,
+//             TextSubCommand::Verify(opts) => opts.execute().await,
+//             TextSubCommand::KeyGenerate(opts) => opts.execute().await,
+//         }
+//     }
+// }

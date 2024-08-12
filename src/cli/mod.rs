@@ -5,18 +5,18 @@ mod http;
 mod text;
 
 // 在这里也需要 pub use 一下
-pub use base64::*;
-pub use csv::*;
-pub use genpass::*;
-pub use http::*;
-pub use text::*;
+pub use self::base64::*;
+pub use self::csv::*;
+pub use self::genpass::*;
+pub use self::http::*;
+pub use self::text::*;
 
 use crate::cli::csv::CsvOpts;
 use crate::cli::genpass::GenPassOpts;
-use crate::CmdExecutor;
 use anyhow::Result;
 use clap::Parser;
 use std::path::{Path, PathBuf};
+use enum_dispatch::enum_dispatch;
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -32,6 +32,7 @@ pub struct Opts {
 
 /// 多个子命令定义在一个 enum 中
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum SubCommand {
     // name 是子命令的名称，about 是子命令的简介
     #[command(name = "csv", about = "Show CSV, or convert CSV to other formats")]
@@ -52,17 +53,19 @@ pub enum SubCommand {
     Http(HttpSubCommand),
 }
 
-impl CmdExecutor for SubCommand {
-    async fn execute(self) -> Result<()> {
-        match self {
-            SubCommand::Csv(opts) => opts.execute().await,
-            SubCommand::GenPass(opts) => opts.execute().await,
-            SubCommand::Base64(cmd) => cmd.execute().await,
-            SubCommand::Text(cmd) => cmd.execute().await,
-            SubCommand::Http(cmd) => cmd.execute().await,
-        }
-    }
-}
+// 这些代码是非常机械的，所以可以使用 enum dispatch
+// conflicting implementations of trait `CmdExecutor` for type `cli::SubCommand`
+// impl CmdExecutor for SubCommand {
+//     async fn execute(self) -> Result<()> {
+//         match self {
+//             SubCommand::Csv(opts) => opts.execute().await,
+//             SubCommand::GenPass(opts) => opts.execute().await,
+//             SubCommand::Base64(cmd) => cmd.execute().await,
+//             SubCommand::Text(cmd) => cmd.execute().await,
+//             SubCommand::Http(cmd) => cmd.execute().await,
+//         }
+//     }
+// }
 
 /// 校验输入文件是否存在, 如果存在则返回文件的路径，否则返回错误
 /// 它是一个函数，返回值是 Result<String, &'static str>

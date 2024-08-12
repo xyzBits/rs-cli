@@ -4,19 +4,11 @@ mod genpass;
 mod http;
 mod text;
 
-// 在这里也需要 pub use 一下
-pub use self::base64::*;
-pub use self::csv::*;
-pub use self::genpass::*;
-pub use self::http::*;
-pub use self::text::*;
-
-use crate::cli::csv::CsvOpts;
-use crate::cli::genpass::GenPassOpts;
-use anyhow::Result;
 use clap::Parser;
-use std::path::{Path, PathBuf};
 use enum_dispatch::enum_dispatch;
+use std::path::{Path, PathBuf};
+
+pub use self::{base64::*, csv::*, genpass::*, http::*, text::*};
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的

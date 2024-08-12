@@ -2,8 +2,8 @@ mod cli;
 mod process;
 mod utils;
 
-use enum_dispatch::enum_dispatch;
 pub use cli::*;
+use enum_dispatch::enum_dispatch;
 pub use process::*;
 pub use utils::*;
 
@@ -13,9 +13,7 @@ pub use utils::*;
 /// 1.75版本之前，在 trait 中要使用 async 不太好，
 /// 1.75 之后，可以直接在 trait 中定义 async 函数
 #[allow(async_fn_in_trait)]
-#[enum_dispatch]// 首先在 trait 上加上宏 enum_dispatch
+#[enum_dispatch] // 首先在 trait 上加上宏 enum_dispatch
 pub trait CmdExecutor {
     async fn execute(self) -> anyhow::Result<()>;
-
-    fn hello() -> CsvOpts;
 }

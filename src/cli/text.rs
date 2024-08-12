@@ -6,8 +6,8 @@ use crate::{
 use base64::engine::general_purpose::URL_SAFE_NO_PAD;
 use base64::Engine;
 use clap::Parser;
-use std::{fmt, path::PathBuf, str::FromStr};
 use enum_dispatch::enum_dispatch;
+use std::{fmt, path::PathBuf, str::FromStr};
 
 #[derive(Debug, Parser)]
 #[enum_dispatch(CmdExecutor)]

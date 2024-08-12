@@ -16,6 +16,8 @@ use crate::cli::genpass::GenPassOpts;
 use anyhow::Result;
 use clap::Parser;
 use std::path::{Path, PathBuf};
+use enum_dispatch::enum_dispatch;
+use crate::CmdExecutor;
 
 /// 最上层的 command
 /// Parser 是 clap 的属性，它是用来解析命令行参数的
@@ -31,6 +33,7 @@ pub struct Opts {
 
 /// 多个子命令定义在一个 enum 中
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExecutor)]
 pub enum SubCommand {
     // name 是子命令的名称，about 是子命令的简介
     #[command(name = "csv", about = "Show CSV, or convert CSV to other formats")]

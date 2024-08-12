@@ -3,7 +3,7 @@
 ## Convert csv to json
 
 ```bash
-cargo run -- csv --input input.csv 
+cargo run -- csv --input assets/juventus.csv --output output.json
 ```
 
 ## Convert csv to yaml 
